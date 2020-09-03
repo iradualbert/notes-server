@@ -16,19 +16,19 @@ from .utils import send_confirmation_email, get_user_fb_google
 
 @api_view(['POST', 'GET'])
 def ip_address(request):
-    ip1 =  str()
-    ip2 = str()
+    ip =  str()
+   
     try:
         x_forward = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forward:
-            ip1 = x_forward.split(",")[0]
-        ip2 = request.META.get("REMOTE_ADDR")
+            ip = x_forward.split(",")[0]
+        else:
+            ip = request.META.get("REMOTE_ADDR")
     except:
         pass
 
     return JsonResponse({
-        "ip1": ip1,
-        "ip2": ip2
+        "ip": ip,
     })
 
 

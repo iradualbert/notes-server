@@ -1,5 +1,6 @@
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import permissions
@@ -91,11 +92,27 @@ class ListingView(ModelViewSet):
                 print(e)
                 return []
         return super().get_queryset()
+    
+    
 
         
 class ProductView(ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        product = get_object_or_404(Product, pk=pk)
+        channel = ChannelSerializer(product.channel).data
+        reviews = ReviewSerializer(Review.objects.filter(product=product), many=True).data
+        questions = QuestionSerializer(Question.objects.filter(product=product), many=True).data
+        return Response({
+            "product": ProductSerializer(product).data,
+            "channel": channel,
+            "reviews": reviews,
+            "questions": questions
+        })
+        
 
     def get_queryset(self):
         channel_id = self.request.GET.get("channel_id")
@@ -108,6 +125,8 @@ class ProductView(ModelViewSet):
         except Exception as e:
             print(e)
         return Product.objects.all()
+    
+    
 
 class ReviewView(ModelViewSet):
     serializer_class = ReviewSerializer

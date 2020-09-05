@@ -35,7 +35,7 @@ class ChannelAdminSerializer(ModelSerializer):
 
 class ProductSerializer(ModelSerializer):
     class Meta:
-        fields = "__all__"
+        exclude = ['channel']
         model = Product
 
 class ListingSerializer(ModelSerializer):

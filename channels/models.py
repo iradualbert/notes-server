@@ -76,7 +76,7 @@ class Review(models.Model):
         unique_together = [['product', 'user']]
     
     def __str__(self):
-        return f"{self.username} - {self.product.name} - {self.body} "
+        return f"{self.user.username} - {self.product.name} - {self.body} "
 
 
 class Question(models.Model):

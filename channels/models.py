@@ -5,6 +5,7 @@ from django.db import models
 
 class Channel(models.Model):
     name = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.URLField(null=True, blank=True)
     cat = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
@@ -20,6 +21,11 @@ class Channel(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def can_answer(self, user):
+        if user == self.user:
+            return True
+        return False
 
 class Branch(models.Model):
     main_channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name="branches")

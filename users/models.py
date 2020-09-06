@@ -36,6 +36,19 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def to_json(self):
+        if self.has_channel and self.use_channel:
+            channel = self.channel
+            pass
+
+        else:
+            return {
+                "username": self.user.username,
+                "fullname": self.user.first_name,
+                "is_channel": False,
+                'is_private': True,
+            }
+
 
 class VerificationCode(models.Model):
     id = models.AutoField(primary_key=True, editable=False)

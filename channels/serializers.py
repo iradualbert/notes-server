@@ -14,12 +14,11 @@ from .models import (
 
 class ChannelSerializer(ModelSerializer):
     class Meta:
-        fields = "__all__"
         model = Channel
+        exclude = ['user', 'lat', 'lng', 'created_at']
 
 class SubscriptionSerializer(ModelSerializer):
     class Meta:
-        fields = "__all__"
         model = Subscription
         exclude = ['channel', 'user']
 

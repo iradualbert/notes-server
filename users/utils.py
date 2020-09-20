@@ -48,7 +48,7 @@ def get_user_fb_google(email, facebook_id=None, google_id=None):
 
 
 
-def ip_address(request):
+def get_ip_address(request):
     ip = str()
     try:
         x_forward = request.META.get("HTTP_X_FORWARDED_FOR")

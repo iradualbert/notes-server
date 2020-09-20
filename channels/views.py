@@ -1,8 +1,9 @@
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
-from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import permissions
 from .serializers import (
@@ -27,6 +28,7 @@ from .models import (
     Question,
     Answer
 )
+from .utils import get_ip_address
 
 http_errors = {
     "afd": Response({"detail": "Authentication credentials were not provided."}, status=401),
@@ -42,12 +44,61 @@ class ChannelView(ModelViewSet):
     queryset = Channel.objects.all()
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
     def list(self, request, *args, **kwargs):
         offset = int(request.GET.get('offset', 0))
-        limit = int(request.GET.get('limit', 5))
-        user_location = request.GET.get('user_location')
-        
-        pass
+        limit = int(request.GET.get('limit', 8))
+        to_fetch = limit + 1
+        user_location = request.GET.get('user_location', {})
+        user = request.user
+        if not user_location and user.is_authenticated:
+            lat = user.profile.lat
+            lng = user.profile.lng
+        user_ip_address = get_ip_address(request)
+        fetched = Channel.objects.all()[offset: offset + to_fetch]
+        more_available = len(fetched) == to_fetch
+        results = ChannelSerializer(fetched[0:limit], many=True).data
+        return JsonResponse({
+            "channels": results,
+            "more_available": more_available
+        })
+    
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        profile = user.profile
+        data = json.loads(request.body)
+        serializer = ChannelSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=user)
+            profile.has_channel = True
+            profile.use_channel = True
+            profile.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+    def update(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        user = request.user
+        try:
+            channel = Channel.objects.get(pk=pk)
+            if channel.user == user:
+                return super().update(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            pass
+        return JsonResponse({'detail': 'invalid request'}, status=403)
+    
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        user = request.user
+        try:
+            channel = Channel.objects.get(pk=pk)
+            if channel.user == user:
+                return super().destroy(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            pass
+        return JsonResponse({'detail': 'forbidden'}, status=403)
 
 
 class SubscriptionView(ModelViewSet):
@@ -56,7 +107,7 @@ class SubscriptionView(ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, )
 
     def update(self, request, *args, **kwargs):
-        return Response({'detail': 'not allowed'}, status=403)
+        return Response({'detail': 'uneditable'}, status=403)
     
 
     def create(self, request, *args, **kwargs):
@@ -81,8 +132,6 @@ class SubscriptionView(ModelViewSet):
         else:
             return Response({'status': 'bad request'}, status=400)
 
-
-    
 
 class ChannelAdminView(ModelViewSet):
     serializer_class = ChannelAdminSerializer
@@ -133,6 +182,7 @@ class ListingView(ModelViewSet):
 class ProductView(ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def retrieve(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
@@ -146,33 +196,73 @@ class ProductView(ModelViewSet):
             "reviews": reviews,
             "questions": questions
         })
+    
+    def list(self, request, *args, **kwargs):
+        channel_id = request.GET.get("channel_id")
+        offset = int(request.GET.get("offset", 0))
+        limit = int(request.GET.get('limit', 10))
+        to_fetch = limit + 1
+        fetched = []
+        more_available = False
+        if channel_id:
+            try:
+                channel = Channel.objects.get(id=channel_id)
+                if channel:
+                    fetched = channel.products.all()[offset:offset+to_fetch]
+                    more_available = len(fetched) == to_fetch
+            except ObjectDoesNotExist:
+                return JsonResponse({'detail': 'not found'}, status=404)
+        else:
+            fetched = Product.objects.all()[offset: offset + to_fetch]
+            more_available = len(fetched) == to_fetch
         
+        results = ProductSerializer(fetched[0:limit], many=True).data
+        return JsonResponse({
+            "products": results,
+            "more_available": more_available
+        })
 
-    def get_queryset(self):
-        channel_id = self.request.GET.get("channel_id")
-        offset = int(self.request.GET.get("offset", 0))
-        limit = int(self.request.GET.get('limit', 10))
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        data = json.loads(request.body)
+        channel = user.channel
+        if not channel:
+            profile = user.profile
+            channel = Channel.objects.create(
+                name=user.first_name,
+                address = profile.address,
+                lat=profile.lat,
+                lng=profile.lng
+            )
+            profile.has_channel = True
+            profile.use_channel = True
+            profile.save()
+        serializer = ProductSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(channel=channel)
+            return JsonResponse(serializer.data, status=201)
+        else:
+            return JsonResponse(serializer.errors, status=403)
+    def update(self, request, *args, **kwargs):
+        return JsonResponse({'detail': 'You can change product data once created'}, status=403)
+    
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+        pk = kwargs.get('pk')
         try:
-            channel = Channel.objects.get(id=channel_id)
-            if channel:
-                return channel.products.all()
-        except Exception as e:
-            print(e)
-        return Product.objects.all()
-    
-    
+            product = Product.objects.get(pk=pk)
+            if product and product.user == user:
+                return super().destroy(request, *args, **kwargs)
+        except:
+            return JsonResponse({'detail': 'forbidden request'}, status=403)
 
 class ReviewView(ModelViewSet):
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-   # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        if not user.is_authenticated:
-            return Response({
-                "detail": "Authentication credentials were not provided.",
-            }, status=401)
         product_id = request.GET.get('product_id')
         product = get_object_or_404(Product, pk=product_id)
         data = json.loads(request.body)
@@ -206,8 +296,6 @@ class ReviewView(ModelViewSet):
         user = request.user
         pk = kwargs.get('pk')
         review = get_object_or_404(Review, pk=pk)
-        if not user.is_authenticated:
-            return Response({'detail': 'Authentication credentials were not provided.'}, status=401)
         if review.user !=user:
             return Response({'detail': 'Forbidden'}, status=403)
         return super().update(request, *args, **kwargs)
@@ -215,7 +303,7 @@ class ReviewView(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user = request.user
         pk = kwargs.get('pk')
-        if user.is_authenticated and pk:
+        if pk:
             review = get_object_or_404(Review, pk=pk)
             if review.user == user:
                 review.delete();
@@ -227,13 +315,10 @@ class ReviewView(ModelViewSet):
 class QuestionView(ModelViewSet):
     serializer_class = QuestionSerializer
     queryset = Question.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        if not user.is_authenticated:
-            return Response({
-                "detail": "Authentication credentials were not provided.",
-            }, status=401)
         product_id = request.GET.get('product_id')
         product = get_object_or_404(Product, pk=product_id)
         data = json.loads(request.body)
@@ -267,29 +352,25 @@ class QuestionView(ModelViewSet):
         user = request.user
         pk = kwargs.get('pk')
         question = get_object_or_404(Question, pk=pk)
-        if not user.is_authenticated:
-            return Response({'detail': 'Authentication credentials were not provided.'}, status=401)
         if question.user !=user:
             return Response({'detail': 'Forbidden'}, status=403)
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-     
-        return Response({'detail': 'question are not editable'}, status=400)
+        return Response({'detail': 'question are not editable'}, status=403)
     
 
 
 class AnswerView(ModelViewSet):
     serializer_class = AnswerSerializer
     queryset = Answer.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def create(self, request, *args, **kwargs):
         user = request.user
         question_id = request.GET.get('question_id')
         question = get_object_or_404(Question, pk=question_id)
         data = json.loads(request.body)
-        if not user.is_authenticated:
-            return Response({'detail': 'Authentication Credentials were not provided'}, status=401)
         channel = question.product.channel
         if channel.can_answer(user):
             serializer = AnswerSerializer(data=data)
@@ -303,22 +384,16 @@ class AnswerView(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user = request.user
         pk = kwargs.get("pk")
-        if user.is_authenticated:
-            answer = get_object_or_404(Answer, pk=pk)
-            if answer.user == user:
-                answer.delete()
-            else:
-                return Response({'detail': 'bad request'})
-        
+        answer = get_object_or_404(Answer, pk=pk)
+        if answer.user == user:
+            answer.delete()
         else:
-            return Response({'detail': 'Authentication credentials were not provided'}, status=401)
+            return Response({'detail': 'bad request'})
     
     def update(self, request, *args, **kwargs):
         user = request.user
         pk = kwargs.get('pk')
         answer = get_object_or_404(Answer, pk=pk)
-        if not user.is_authenticated:
-            return Response({'detail': 'Authentication credentials were not provided.'}, status=401)
         if answer.user != user:
             return Response({'detail': 'Forbidden'}, status=403)
         return super().update(request, *args, **kwargs)

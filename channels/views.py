@@ -40,6 +40,15 @@ http_errors = {
 class ChannelView(ModelViewSet):
     serializer_class = ChannelSerializer
     queryset = Channel.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+
+    def list(self, request, *args, **kwargs):
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 5))
+        user_location = request.GET.get('user_location')
+        
+        pass
+
 
 class SubscriptionView(ModelViewSet):
     serializer_class = SubscriptionSerializer

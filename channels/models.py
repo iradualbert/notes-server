@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-
+from django.dispatch.dispatcher import receiver
+from django.db.models.signals import pre_delete, pre_save, post_save
 # Create your models here.
 
 class Channel(models.Model):
@@ -118,3 +119,37 @@ class Subscription(models.Model):
 
     class Meta:
         unique_together = [['user', 'channel']]
+
+
+@receiver(pre_delete, sender=Review)
+def _review_delete(sender, instance, **kwargs):
+    product = instance.product
+    if product.total_reviews > 1:
+        product.average_rate = (
+            (product.average_rate * product.total_reviews) - instance.rate) / (product.total_reviews - 1)
+        product.total_reviews = product.total_reviews - 1
+
+    else:
+        product.total_reviews = 0
+        product.average_rate = 0
+    product.save()
+
+
+@receiver(pre_save, sender=Review)
+def review_pre_save(sender, instance, **kwargs):
+    try:
+        instance._pre_save_instance = Review.objects.get(pk=instance.pk)
+    except:
+        instance._pre_save_instance = instance
+
+@receiver(post_save, sender=Review)
+def _review_create(sender, instance, created,**kwargs):
+    product = instance.product
+    if created:
+         product.average_rate = (
+             (product.average_rate * product.total_reviews) + instance.rate) / (product.total_reviews + 1)
+         product.total_reviews = product.total_reviews + 1
+    else:
+        product.average_rate = (
+            (product.average_rate * product.total_reviews) + instance.rate - instance._pre_save_instance.rate) / (product.total_reviews)
+    product.save()

@@ -46,7 +46,7 @@ def update_photo(request):
         profile.save()
         return JsonResponse({'status': 'ok'})
     else:
-        return JsonResponse({'error': 'bad request'})
+        return JsonResponse({'error': 'bad request'}, status=401)
 
 
 

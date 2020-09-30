@@ -1,9 +1,9 @@
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos.point import Point
 from django.contrib.auth.models import User
-import secrets
-import json
 import random
 from datetime import datetime, timedelta
+from channels.models import Channel, Product, Listing
 
 
 def generate_integers():
@@ -31,6 +31,7 @@ class Profile(models.Model):
     address = models.TextField(blank=True, null=True)
     lat = models.FloatField(blank=True, null=True)
     lng = models.FloatField(blank=True, null=True)
+    geom = models.PointField(srid=4326, null=True)
     created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -49,6 +50,11 @@ class Profile(models.Model):
                 'is_private': True,
             }
 
+    def save(self, *args, **kwargs):
+        if(self.lat and self.lng):
+            self.geom = Point([float(x)
+                               for x in (self.lng, self.lat)], srid=4326)
+        super(self.__class__, self).save(*args, **kwargs)
 
 class VerificationCode(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
@@ -100,3 +106,21 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.body} to {self.to.username}"
+        
+class History(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} checked {self.product.name}"
+
+class Saved(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.product.name} - {self.listing.name}"
+
+

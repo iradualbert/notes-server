@@ -1,5 +1,9 @@
+from datetime import datetime
 from django.contrib.auth.models import User
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos.point import Point
+from django.db.models import Q
+from django.contrib.gis.measure import D
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_delete, pre_save, post_save
 # Create your models here.
@@ -13,10 +17,12 @@ class Channel(models.Model):
     contact = models.TextField(blank=True, null=True)
     verified = models.BooleanField(default=False)
     website = models.URLField(blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(null=True, blank=True)
     time_open = models.TextField(null=True, blank=True)
     lat = models.FloatField(blank=True, null=True)
     lng = models.FloatField(blank=True, null=True)
+    geom = models.PointField(srid=4326, null=True)
     created_at = models.DateTimeField(auto_now=True)
 
 
@@ -27,6 +33,35 @@ class Channel(models.Model):
         if user == self.user:
             return True
         return False
+
+    def get_similar_channels(self):
+        return []
+
+    def get_nearby(self, offset=0, limit=6, m=2500, similar_cat=False):
+        if self.geom:
+            to_fetch = limit + 1
+            fetched = []
+            if similar_cat:
+                fetched = Channel.objects.filter(
+                    Q(geom__distance_lt=(self.geom, D(m=m))),
+                    cat=self.cat
+                    ).exclude(
+                        pk=self.pk
+                        )[offset: to_fetch+limit]
+            else:
+                fetched = Channel.objects.filter(
+                    Q(geom__distance_lt=(self.geom, D(m=m)))
+                    ).exclude(
+                        pk=self.pk
+                        )[offset: to_fetch+limit]
+            more_available = len(fetched) == to_fetch
+            return fetched[0:limit], more_available
+        return [], False
+
+    def save(self, *args, **kwargs):
+        if(self.lat and self.lng):
+            self.geom = Point([float(x) for x in (self.lng, self.lat)], srid=4326)
+        super(self.__class__, self).save(*args, **kwargs)
 
 class Branch(models.Model):
     main_channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name="branches")
@@ -59,9 +94,36 @@ class Product(models.Model):
     average_rate  = models.FloatField(null=True, blank=True, default=0)
     total_reviews = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    total_views = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
+    
+    def similar_products(self):
+        pass
+
+    def add_view(self, user):
+        obj, created = View.objects.get_or_create(
+            user=user,
+            product=self
+        )
+        if created:
+            self.views +=1 
+            self.save()
+        else:
+            obj.last_time_viewed = datetime.now()
+            obj.save()
+        
+
+class View(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="views")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="viewed")
+    time_viewed = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_time_viewed = models.DateField(default=datetime.now)
+
+    class Meta:
+        unique_together = [['user', 'product']]
 
 class Listing(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name="listings")

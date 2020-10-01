@@ -54,7 +54,7 @@ def recommend_channels(user, offset=0, limit=9, location=None, ):
         return [], False
 
 ## recommend popular and nearby products
-def popular_products(offset=0, limit=5):
+def popular_products(request, offset=0, limit=5):
     to_fetch = limit + 1
     products = []
     more_available = False

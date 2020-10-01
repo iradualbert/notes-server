@@ -1,3 +1,5 @@
+import requests
+from geopy.geocoders import Nominatim
 from django.utils.encoding import force_bytes, force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -7,6 +9,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from .models import VerificationCode, Profile
 from .tokens import account_activation_token
+
+
+geolocator = Nominatim(user_agent="alg")
 
 def send_confirmation_email(user, request):
     verification_code, created = VerificationCode.objects.get_or_create(user=user)
@@ -59,3 +64,32 @@ def get_ip_address(request):
     except:
         pass
     return ip
+
+
+class GeoApi:
+    @staticmethod
+    def ip_address(request):
+        ip = get_ip_address(request)
+        url = f"http://ipinfo.io/{ip}/json"
+        data = requests.get(url)
+        return data.json()
+
+    @staticmethod
+    def geocode(address, exactly_one=True, language="en"):
+        locations = geolocator.geocode(
+            address, exactly_one=exactly_one, language=language
+        )
+        
+        if exactly_one == True:
+            return {
+                "lat": locations.latitude,
+                "lng": locations.longitude,
+            }
+        else:
+            return locations
+
+    @staticmethod
+    def reverse(lat="", lng="", language="en"):
+        location = f"{lat}, {lng}"
+        reversed_location = geolocator.reverse(location, language=language)
+        return reversed_location.address

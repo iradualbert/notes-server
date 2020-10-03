@@ -41,7 +41,13 @@ def register(request):
         user = serializer.save()
         Profile.objects.create(user=user)
         send_confirmation_email(user, request)
-        return JsonResponse({"status": "We sent you a confirmation email"}, status=201)
+        _, token = AuthToken.objects.create(user)
+        return JsonResponse({
+            "user": UserSerializer(user).data,
+            "token": token,
+            "is_active": user.profile.confirmed
+        })
+        
    
 
 
@@ -105,22 +111,15 @@ def degenerate_code(request):
 # Login API
 class LoginAPI(generics.GenericAPIView):
     serializer_class = LoginSerializer
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-
-        if not user.profile.confirmed:
-            return JsonResponse({
-                'user': UserSerializer(user, context=self.get_serializer_context()).data,
-                'is_active': False
-            })
         _, token = AuthToken.objects.create(user)
         return JsonResponse({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": token,
-            "is_active": True
+            "is_active": user.profile.confirmed
         })
 
 # social authentication

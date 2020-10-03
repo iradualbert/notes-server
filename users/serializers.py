@@ -18,7 +18,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password', 'email', 'fullname')
         extra_kwargs = {'password': {'write_only': True},
-                         'fullname': {'required': False},
+                        'fullname': {'required': False},
                         'email': {'required': True,
                                   'validators': [UniqueValidator(User.objects.all(), f'A user with that Email already exists.')]},
                         }

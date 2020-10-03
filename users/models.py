@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 import random
 from datetime import datetime, timedelta
 from channels.models import Channel, Product, Listing
-
+from django.utils import timezone
 
 def generate_integers():
     n = "".join([str(random.randint(0, 9)) for p in range(0, 6)])
@@ -65,16 +65,18 @@ class VerificationCode(models.Model):
 
     @staticmethod
     def check_code(user, code):
+        verification_code = None
         try:
             verification_code = VerificationCode.objects.get(
                 user=user, code=code)
-            if verification_code and verification_code.expire_at > datetime.now():
-                verification_code.delete()
-                return True
-            else:
-                verification_code.delete() # the code has expired
         except Exception as e:
+            print(e)
             pass
+        if verification_code and verification_code.expire_at > timezone.now():
+            verification_code.delete()
+            return True
+        else:
+            verification_code.delete() # the code has expired
         
         return False
 
@@ -124,5 +126,4 @@ class Saved(models.Model):
     
     def __str__(self):
         return f"{self.product.name} - {self.listing.name}"
-
 

@@ -73,6 +73,8 @@ def activate_account_code(request):
     user = request.user
     data = json.loads(request.body)
     code = data.get('code')
+    if not user.is_authenticated:
+        return JsonResponse({'detail': 'Authentication issues'}, status=401)
     if not code:
         return JsonResponse({'code': 'Invalid code'}, status=400)
     if VerificationCode.check_code(user, code):
@@ -86,23 +88,11 @@ def activate_account_code(request):
 
 @api_view(['POST'])
 def degenerate_code(request):
-    data = json.loads(request.body)
-    username = data.get('username')
-    email = data.get('email')
-    if not (username or email):
-        return JsonResponse({'error': 'missing information'})
-    try:
-        if username:
-            user = User.objects.get(username=username)
-        else:
-            user = User.objects.get(email=email)
-        if user:
-            send_confirmation_email(user, request)
-        else:
-            return JsonResponse({'error': 'account not found'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': f"{e}"})
-    return JsonResponse({"status": "ok"})
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({"detail": "Authentication issues"})
+    send_confirmation_email(user, request)
+    return JsonResponse({'status': 'ok'})
 
 
 # Login API

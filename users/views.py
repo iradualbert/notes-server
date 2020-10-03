@@ -74,14 +74,14 @@ def activate_account_code(request):
     data = json.loads(request.body)
     code = data.get('code')
     if not code:
-        return JsonResponse({'error': 'Invalid code'}, status=400)
+        return JsonResponse({'code': 'Invalid code'}, status=400)
     if VerificationCode.check_code(user, code):
         return JsonResponse({
             "user": UserSerializer(user).data,
             "is_active": True
         })
     else:
-        return JsonResponse({'error': 'invalid code'}, status=400)
+        return JsonResponse({'code': 'Invalid code'}, status=400)
 
 
 @api_view(['POST'])

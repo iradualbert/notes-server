@@ -1,36 +1,18 @@
 import json
-from django.http import JsonResponse, HttpResponseNotAllowed
+from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
 from django.core.mail import EmailMessage
 from rest_framework import generics, permissions
+from rest_framework import serializers
 from rest_framework.decorators import api_view
 from knox.models import AuthToken
 from .tokens import account_activation_token
 from .models import Profile, VerificationCode
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 from .utils import send_confirmation_email, get_user_fb_google
-
-
-@api_view(['POST', 'GET'])
-def ip_address(request):
-    ip =  str()
-   
-    try:
-        x_forward = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forward:
-            ip = x_forward.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR")
-    except:
-        pass
-
-    return JsonResponse({
-        "ip": ip,
-    })
-
 
 @api_view(['POST', 'DELETE', 'PUT'])
 def update_photo(request):
@@ -52,23 +34,15 @@ def update_photo(request):
 
 @api_view(['POST'])
 def register(request):
-    data = json.loads(request.body)
-    if data == {}:
-        return JsonResponse({'error': 'missing data'}, status=400)
-    errors = {}
-    email = data.get('email')
-    fullname = data.get('fullname')
+    data = request.data
+    data["first_name"] = data.get('fullname')
     serializer = RegisterSerializer(data=data)
-    if not serializer.is_valid() or fullname == "" or email == "":
-        errors = dict(serializer.errors)
-        return JsonResponse(errors, status=400)
-
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         user = serializer.save()
         Profile.objects.create(user=user)
         send_confirmation_email(user, request)
-        return JsonResponse(
-            {'message': 'We have sent you an email, please confirm your email address to complete registration'})
+        return JsonResponse({"status": "We sent you a confirmation email"}, status=201)
+   
 
 
 # activate through email

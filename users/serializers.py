@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate
 # user Serializer
 class UserSerializer(serializers.ModelSerializer):
     fullname=serializers.CharField(source="first_name")
-    #photo=serializers.ImageField(source="profile.photo")
     class Meta:
         model = User
         fields = ('username', 'email', 'fullname')
@@ -14,11 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField()
     class Meta:
         model = User
-        fields = ('username', 'password', 'email', 'first_name')
+        fields = ('username', 'password', 'email', 'fullname')
         extra_kwargs = {'password': {'write_only': True},
-                         'first_name': {'required': False},
+                         'fullname': {'required': False},
                         'email': {'required': True,
                                   'validators': [UniqueValidator(User.objects.all(), f'A user with that Email already exists.')]},
                         }
@@ -28,7 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            first_name=validated_data['first_name']
+            first_name=validated_data['fullname']
         )
         return user
 

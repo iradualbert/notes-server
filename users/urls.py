@@ -6,15 +6,13 @@ from .views import (
      UserAPI, 
      activate_account_code, 
      degenerate_code, 
-     social_authentication,
-     ip_address
+     social_authentication
 )
 from knox import views as knox_views
 from django.urls import path, include
 
 
 urlpatterns = [
-     path('api/auth/ip_address', ip_address),
     path('api/auth', include('knox.urls')),
     path('api/auth/register', register),
     path('api/auth/user', UserAPI.as_view()),

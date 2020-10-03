@@ -69,11 +69,13 @@ class VerificationCode(models.Model):
             verification_code = VerificationCode.objects.get(
                 user=user, code=code)
             if verification_code and verification_code.expire_at > datetime.now():
+                verification_code.delete()
                 return True
             else:
                 verification_code.delete() # the code has expired
         except Exception as e:
             pass
+        
         return False
 
     def __str__(self):

@@ -70,17 +70,14 @@ def activate_account(request, uidb64, token):
 # activate through code
 @api_view(['POST'])
 def activate_account_code(request):
+    user = request.user
     data = json.loads(request.body)
     code = data.get('code')
     if not code:
-        return JsonResponse({'error': 'Invalid code'})
-    username = data.get('username')
-    user = User.objects.get(username=username)
+        return JsonResponse({'error': 'Invalid code'}, status=400)
     if VerificationCode.check_code(user, code):
-        _, token = AuthToken.objects.create(user)
         return JsonResponse({
-            "user": data,
-            "token": token,
+            "user": UserSerializer(user).data,
             "is_active": True
         })
     else:

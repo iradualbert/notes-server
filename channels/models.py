@@ -10,7 +10,7 @@ from django.db.models.signals import pre_delete, pre_save, post_save
 
 class Channel(models.Model):
     name = models.CharField(max_length=100)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name="channel")
     photo = models.URLField(null=True, blank=True)
     cat = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
@@ -28,6 +28,8 @@ class Channel(models.Model):
 
     def __str__(self):
         return self.name
+    
+
     
     def can_answer(self, user):
         if user == self.user:
@@ -83,7 +85,8 @@ class ChannelAdmin(models.Model):
 class Product(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=100)
-    photo = models.URLField(null=True, blank=True)
+    #photo = models.URLField(null=True, blank=True)
+    photo = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     link = models.URLField(blank=True, null=True)
     link_type = models.TextField(blank=True, null=True)

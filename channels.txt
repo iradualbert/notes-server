@@ -1,0 +1,192 @@
+{"channels": [
+{
+    "model": "channels.channel",
+    "pk": 1,
+    "fields": {
+        "name": "Leb-i Derya",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/the-best-restaurants-in-istanbul-min.jpg",
+        "cat": "Restaurant",
+        "bio": "Leb-i Derya means “seaside” in Persian, it refers to its unique location which makes it one of the best restaurants in Istanbul. Istanbul is a place where the sea passes tenderly by caressing the mystical land and its magical history. Leb-i Derya is one of the best rooftop restaurants in Istanbul with a wonderful Bosphorus view. An elegant restaurant in the middle of old Istanbul which has a separate theme on each floor. It has a more refined menu than the original down the street. It’s an ideal place to enjoy delicious food and drink whether you fancy a small gathering of friends or you’re organizing a large meeting.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:41:21.610Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 2,
+    "fields": {
+        "name": "Mikla",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/mikla-min.jpg",
+        "cat": "Restaurant",
+        "bio": "A mysterious, lonely and romantic tower in the middle of Istanbul. The 2500-year-old Maiden’s Tower serves every meal from breakfast to dinner. For a truly memorable dining experience you can arrive at the Maiden’s Tower by boat. Boats depart from Salacak and Kabataş. Once you step into the tower, you will find yourself in a unique atmosphere. You can have your breakfast with a wide variety of flavours, or have a romantic evening with tasty food and wines accompanied by the magical view of Maiden’s Tower.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:42:29.514Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 3,
+    "fields": {
+        "name": "Maiden’s Tower",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/kiz-kulesi-restaurant-min.jpg",
+        "cat": "Restaurant",
+        "bio": "A mysterious, lonely and romantic tower in the middle of Istanbul. The 2500-year-old Maiden’s Tower serves every meal from breakfast to dinner. For a truly memorable dining experience you can arrive at the Maiden’s Tower by boat. Boats depart from Salacak and Kabataş. Once you step into the tower, you will find yourself in a unique atmosphere. You can have your breakfast with a wide variety of flavours, or have a romantic evening with tasty food and wines accompanied by the magical view of Maiden’s Tower.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:43:21.077Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 4,
+    "fields": {
+        "name": "360 Istanbul",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/360-istanbul-min-3.jpg",
+        "cat": "Restaurant",
+        "bio": "The multi award winning 360istanbul; one of the first places that come to mind when you think of landscape views in Istanbul. Located on the top floor of the historical Mısır Apartment from the 19th century, 360 Istanbul serves delicacies from around the world alongside modern Turkish cuisine. 360 is open for lunch and dinner, offering a twist on the modern Turkish meze fused with international cuisine and an exclusive wine selection to compliment it. In the evening and at weekends it transforms into 360club with live music, shows and talented DJ performances. It offers unforgettable moments with its unique texture, high-quality service, delicious menu, and panoramic view and entertainment.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:44:07.341Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 5,
+    "fields": {
+        "name": "Asitane Restaurant",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/asitane-restaurant-min.jpg",
+        "cat": "Restaurant",
+        "bio": "Asitane Restaurant invites you to the table of the sultans. The recipes here are truly authentic and based on the findings of gastronomical scholars who have studied how the sultans feasted. Some are from documents in the libraries of Beyazit and Millet; some from the book “A Feast Book” on the circumcision feast of the sons of Suleyman the Magnificent; and some are even from the culinary records of the palace kitchen! In this place you will feast like sultans. Asitane carries the forgotten tastes of the Ottoman to the present-day with its special summer and winter menus, by adding more than 200 historical recipes to its archives. To keep these authentic tastes alive, Asitane periodically organizes special weeks such as “Fatih Sultan Mehmet Period Foods”, “Aphrodisiac Dishes from Ottoman Palaces”, “Fish and Seafood in Ottoman Palaces”.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:44:52.603Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 6,
+    "fields": {
+        "name": "Lacivert",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/lacivert-min-1.jpg",
+        "cat": "Restaurant",
+        "bio": "Lacivert Restaurant combines the flavours of Mediterranean cuisine with the organic products of the Anatolian region. It is known for its relaxed and family-oriented warm atmosphere, and diverse seafood options. Offering a unique view of the Bosphorus, Lacivert is sure to provide a great dining experience at any time of the day, and if you’re a late riser you’ll find they do a splendid brunch. Its atmosphere, view and the delicious food make Lacivert one of the best fine dining restaurants.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:45:36.777Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 7,
+    "fields": {
+        "name": "The Doctor Steak House",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/the-doctor-steakhouse-min.jpg",
+        "cat": "Restaurant",
+        "bio": "Doctor Steakhouse is one of the best meat restaurants in Etiler. The owner, Doctor İnanç is not a doctor, but he is well known by people who like to eat meat in Istanbul. The nickname “Doctor” comes from the fact he cuts the meat with the precision of a surgeon. Here, the meat is served with common accompaniments such as sushi, Turkish delight, cage, neck with Dr Steakhouse’s taste. Doctor İnanç calls his restaurant “the Butcher of the Etiler” since you can either dine in or take out your meat.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:46:26.406Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 8,
+    "fields": {
+        "name": "Çiya",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/ciya-kadikoy-min.jpg",
+        "cat": "Restaurant",
+        "bio": "Çiyas’ chefs add the ancient secrets of Mesopotamia to the dishes of the Balkans, enriching the glory of the Ottoman Empire with the flavours of the Caucasus. Asian spices are infused with the taste of the Arabian Peninsula. And the result is unique, innovative dishes which taste great. There are also local dishes available.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:47:10.111Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 9,
+    "fields": {
+        "name": "Nusr-Et Steakhouse",
+        "user": null,
+        "photo": "https://heytripster.com/wp-content/uploads/2020/05/nusr-et-min-1.jpg",
+        "cat": "Nusr-Et understands the Turkish steakhouse culture of combining great food with good fun. You should",
+        "bio": "Nusr-Et understands the Turkish steakhouse culture of combining great food with good fun. You should have heard Nusr-et by his famous signature gesture, “the Salt Bae”, but the real reason for its name comes from the fresh well-made steaks. You’ll love the warm atmosphere and eating at Nusr-Et means eating at the heart of Istanbul’s steakhouse culture.",
+        "contact": "",
+        "verified": false,
+        "website": null,
+        "address": "",
+        "time_open": "",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-08-31T12:47:58.489Z"
+    }
+},
+{
+    "model": "channels.channel",
+    "pk": 10,
+    "fields": {
+        "name": "Ham Yard Bar & Restaurant",
+        "user": 1,
+        "photo": "https://img.static-bookatable.com/54257cf3-34ef-486f-8579-865dcd55fadf.jpg?404=bat2%2F404-restaurant.jpg&height=466&width=700&quality=75&mode=crop&scale=both&id=45cb4941df2fb6a4923a544c1f8c4375.jpg",
+        "cat": "Restaurant",
+        "bio": "An escape from the lively hustle and bustle of Soho, Ham Yard Bar & Restaurant offers modern British cuisine. Enjoy classic flavours in a plush yet contemporary setting, adorned with an eclectic mix of colourful patterns and fabrics",
+        "contact": null,
+        "verified": true,
+        "website": null,
+        "address": "London, Uk",
+        "time_open": "Monday - Saturday: 07:00 - 23:30 Sunday: 07:00 - 22:30",
+        "lat": null,
+        "lng": null,
+        "created_at": "2020-09-20T15:51:29.275Z"
+    }
+}
+]}

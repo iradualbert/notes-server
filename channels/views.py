@@ -225,18 +225,20 @@ class ProductView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
         data = json.loads(request.body)
-        channel = user.channel
-        if not channel:
+        try:
+            channel = user.channel
+        except ObjectDoesNotExist:
             profile = user.profile
             channel = Channel.objects.create(
                 name=user.first_name,
                 address = profile.address,
-                lat=profile.lat,
-                lng=profile.lng
-            )
+                lat=profile.lat,          
+                lng=profile.lng,
+                user=user     
+                )
             profile.has_channel = True
             profile.use_channel = True
-            profile.save()
+            profile.save()   
         serializer = ProductSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(channel=channel)

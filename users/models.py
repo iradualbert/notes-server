@@ -18,6 +18,7 @@ class Profile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile")
     confirmed = models.BooleanField(default=False)
+    photo = models.URLField(null=True, blank=True)
     is_private = models.BooleanField(default=True)
     gender = models.CharField(max_length=15, blank=True, null=True)
     language = models.CharField(max_length=20, default='en')
@@ -48,6 +49,7 @@ class Profile(models.Model):
                 "fullname": self.user.first_name,
                 "is_channel": False,
                 'is_private': True,
+                'photo': self.photo
             }
 
     def save(self, *args, **kwargs):

@@ -188,8 +188,10 @@ class ProductView(ModelViewSet):
         pk = kwargs.get('pk')
         product = get_object_or_404(Product, pk=pk)
         channel = ChannelSerializer(product.channel).data
-        reviews = ReviewSerializer(Review.objects.filter(product=product), many=True).data
-        questions = QuestionSerializer(Question.objects.filter(product=product), many=True).data
+        # reviews = ReviewSerializer(Review.objects.filter(product=product)[0:6], many=True).data
+        # questions = QuestionSerializer(Question.objects.filter(product=product)[0:6], many=True).data
+        reviews = ReviewSerializer(Review.objects.all(), many=True).data
+        questions = QuestionSerializer(Question.objects.all(), many=True).data
         return Response({
             "product": ProductSerializer(product).data,
             "channel": channel,

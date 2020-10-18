@@ -11,7 +11,6 @@ from .models import (
     Review, 
     Subscription
 )
-
 class ChannelSerializer(ModelSerializer):
     class Meta:
         model = Channel
@@ -34,9 +33,13 @@ class ChannelAdminSerializer(ModelSerializer):
         read_only_fiels = ['user', 'channel']
 
 class ProductSerializer(ModelSerializer):
+    average_rate = serializers.SerializerMethodField('get_average_rate')
     class Meta:
         exclude = ['channel']
         model = Product
+
+    def get_average_rate(self, obj):
+        return round(obj.average_rate, 2)
 
 class ListingSerializer(ModelSerializer):
     class Meta:

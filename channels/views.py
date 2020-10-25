@@ -130,7 +130,7 @@ class SubscriptionView(ModelViewSet):
         if sub.user == user:
             sub.delete()
         else:
-            return Response({'status': 'bad request'}, status=400)
+            return Response({'detail': 'bad request'}, status=400)
 
 
 class ChannelAdminView(ModelViewSet):

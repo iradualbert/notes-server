@@ -78,7 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mainbackend.wsgi.application'
-DATABASE_URL = os.environ.get('DATABASE_URL') #.get("DATABASE_URL")
+DATABASE_URL = os.environ.get('DATABASE_URL') # or "postgres://ycwtauiiqllgaq:6415613ceccc8a14de13dc7f27a6eb66606046c4aba07bf4be509576533ed0ad@ec2-52-31-233-101.eu-west-1.compute.amazonaws.com:5432/dbs1ak1olamhnl" #.get("DATABASE_URL")
 DATABASES = {}
 DATABASES['default'] = connection_url.config(DATABASE_URL)
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
@@ -150,3 +150,5 @@ REST_KNOX = {
     'TOKEN_TTL': None
 }
 
+
+# GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")

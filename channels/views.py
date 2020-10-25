@@ -199,7 +199,10 @@ class ProductView(ModelViewSet):
         channel = product.channel
         channel_json_data = ChannelSerializer(channel).data
         user = request.user
-        channel_json_data['is_subscribed'] = channel.is_subscribed(user)
+        if user.is_authenticated:
+            product.add_view(user)
+            channel_json_data['is_subscribed'] = channel.is_subscribed(user)
+            
         # reviews = ReviewSerializer(Review.objects.filter(product=product)[0:6], many=True).data
         # questions = QuestionSerializer(Question.objects.filter(product=product)[0:6], many=True).data
         reviews = ReviewSerializer(Review.objects.all(), many=True).data

@@ -27,6 +27,7 @@ class Profile(models.Model):
     facebook_id = models.CharField(max_length=40, null=True, blank=True)
     google_id = models.CharField(max_length=40, null=True, blank=True)
     country = models.CharField(max_length=50, null=True, blank=True)
+    auto_detected_country = models.CharField(max_length=20, null=True, blank=True)
     has_channel = models.BooleanField(default=False)
     use_channel = models.BooleanField(default=False)
     address = models.TextField(blank=True, null=True)
@@ -41,7 +42,7 @@ class Profile(models.Model):
     def to_json(self):
         if self.has_channel and self.use_channel:
             channel = self.channel
-            pass
+            return channel.to_json()
         else:
             return {
                 "username": self.user.username,

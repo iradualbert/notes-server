@@ -6,7 +6,8 @@ from .views import (
      UserAPI, 
      activate_account_code, 
      degenerate_code, 
-     social_authentication
+     social_authentication,
+     get_location
 )
 from .views_info import (
      get_user_info,
@@ -18,6 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
      # views_info
+     path('api/user/location', get_location),
      path('api/user/reviews', UserInfo.reviews, name="user_reviews"),
      path('api/user/info', UserInfo.info, name="user_info"),
      path('api/user/notifications', UserInfo.notifications, name="user_notifications"),

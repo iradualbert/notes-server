@@ -12,7 +12,7 @@ from knox.models import AuthToken
 from .tokens import account_activation_token
 from .models import Profile, VerificationCode
 from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
-from .utils import send_confirmation_email, get_user_fb_google
+from .utils import send_confirmation_email, get_user_fb_google, GeoApi
 
 @api_view(['POST', 'DELETE', 'PUT'])
 def update_photo(request):
@@ -30,7 +30,10 @@ def update_photo(request):
     else:
         return JsonResponse({'error': 'bad request'}, status=401)
 
-
+@api_view(['GET'])
+def get_location(request):
+    data = GeoApi.ip_address(request)
+    return JsonResponse(data)
 
 @api_view(['POST'])
 def register(request):

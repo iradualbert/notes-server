@@ -105,6 +105,7 @@ class Product(models.Model):
     link = models.URLField(blank=True, null=True)
     link_type = models.TextField(blank=True, null=True)
     price = models.TextField(blank=True, null=True)
+    currency = models.TextField(blank=True, null=True)
     listing = models.ForeignKey('Listing', on_delete=models.SET_NULL, related_name="products", null=True, blank=True)
     cat = models.TextField(blank=True) # cat stands for category
     # rates and reviews

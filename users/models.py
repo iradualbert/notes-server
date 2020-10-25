@@ -42,7 +42,6 @@ class Profile(models.Model):
         if self.has_channel and self.use_channel:
             channel = self.channel
             pass
-
         else:
             return {
                 "username": self.user.username,
@@ -85,6 +84,7 @@ class VerificationCode(models.Model):
     def __str__(self):
         return f"{self.id}-{self.code}"
 
+
 class Notification(models.Model):
     to = models.ForeignKey(User, on_delete=models.CASCADE,
                            related_name='notifications')
@@ -113,6 +113,20 @@ class Notification(models.Model):
     def __str__(self):
         return f"{self.body} to {self.to.username}"
         
+
+
+class Saved(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved", null=True)
+
+    def to_json(self):
+        return self.product.to_json()
+    
+    def __str__(self):
+        return f"{self.product.name} - {self.listing.name}"
+
 class History(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)    
@@ -120,12 +134,3 @@ class History(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} checked {self.product.name}"
-
-class Saved(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.product.name} - {self.listing.name}"
-

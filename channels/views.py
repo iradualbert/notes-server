@@ -45,7 +45,12 @@ class ChannelView(ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
     def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+        user = request.user
+        pk = kwargs.get('pk')
+        channel = get_object_or_404(Channel, pk=pk)
+        channel_json_data = ChannelSerializer(channel).data
+        channel_json_data['is_subscribed'] = channel.is_subscribed(user)
+        return Response(channel_json_data, status=200)
 
     def list(self, request, *args, **kwargs):
         offset = int(request.GET.get('offset', 0))
@@ -107,7 +112,12 @@ class SubscriptionView(ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, )
 
     def update(self, request, *args, **kwargs):
-        return Response({'detail': 'uneditable'}, status=403)
+        return Response({'detail': 'uneditable'}, status=400)
+    def list(self, request, *args, **kwargs):
+        return Response({'detail': 'invalid request'}, status=400)
+
+    def retrieve(self, *args, **kwargs):
+        return Response({'detail': 'invalid request'}, status=400)
     
 
     def create(self, request, *args, **kwargs):
@@ -121,7 +131,6 @@ class SubscriptionView(ModelViewSet):
             return Response({'status': 'subscribed'})
         else:
             return Response(serializer.errors, status=400)
-
 
     def destroy(self, request, *args, **kwargs):
         user = request.user
@@ -187,14 +196,17 @@ class ProductView(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         product = get_object_or_404(Product, pk=pk)
-        channel = ChannelSerializer(product.channel).data
+        channel = product.channel
+        channel_json_data = ChannelSerializer(channel).data
+        user = request.user
+        channel_json_data['is_subscribed'] = channel.is_subscribed(user)
         # reviews = ReviewSerializer(Review.objects.filter(product=product)[0:6], many=True).data
         # questions = QuestionSerializer(Question.objects.filter(product=product)[0:6], many=True).data
         reviews = ReviewSerializer(Review.objects.all(), many=True).data
         questions = QuestionSerializer(Question.objects.all(), many=True).data
         return Response({
             "product": ProductSerializer(product).data,
-            "channel": channel,
+            "channel": channel_json_data,
             "reviews": reviews,
             "questions": questions
         })
@@ -248,7 +260,7 @@ class ProductView(ModelViewSet):
         else:
             return JsonResponse(serializer.errors, status=403)
     def update(self, request, *args, **kwargs):
-        return JsonResponse({'detail': 'You can change product data once created'}, status=403)
+        return JsonResponse({'detail': "You can't change product data once created"}, status=403)
     
     def destroy(self, request, *args, **kwargs):
         user = request.user
@@ -310,7 +322,7 @@ class ReviewView(ModelViewSet):
         if pk:
             review = get_object_or_404(Review, pk=pk)
             if review.user == user:
-                review.delete();
+                review.delete()
                 return Response({'status': 'ok'})
         return Response({'detail': 'invalid request'}, status=400)
 

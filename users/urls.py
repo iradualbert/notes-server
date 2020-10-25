@@ -8,11 +8,24 @@ from .views import (
      degenerate_code, 
      social_authentication
 )
+from .views_info import (
+     get_user_info,
+     UserInfo
+)
 from knox import views as knox_views
 from django.urls import path, include
 
 
 urlpatterns = [
+     # views_info
+     path('api/user/reviews', UserInfo.reviews, name="user_reviews"),
+     path('api/user/info', UserInfo.info, name="user_info"),
+     path('api/user/notifications', UserInfo.notifications, name="user_notifications"),
+     path('api/user/questions', UserInfo.questions, name="user_questions"),
+     path('api/user/subscriptions', UserInfo.subscriptions, name="user_subscriptions"),
+     path('api/user/saved', UserInfo.saved, name="user_subscriptions"),
+     
+    # views
     path('api/auth', include('knox.urls')),
     path('api/auth/register', register),
     path('api/auth/user', UserAPI.as_view()),

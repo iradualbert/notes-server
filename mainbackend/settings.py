@@ -151,4 +151,11 @@ REST_KNOX = {
 }
 
 
+'''
+gdal library was a nightmare
+running on 32 bit 3.7.4 python
+osgeow4 86 bit express-web-gis
+
+'''
+
 # GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")

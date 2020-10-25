@@ -12,9 +12,15 @@ from .models import (
     Subscription
 )
 class ChannelSerializer(ModelSerializer):
+    # is_subscribed = serializers.SerializerMethodField('get_sub_info')
     class Meta:
         model = Channel
         exclude = ['user', 'lat', 'lng', 'created_at']
+    
+    # def get_sub_info(self, obj):
+    #     user =  dir(serializers.CurrentUserDefault())
+    #     print(user)
+    #     return f"{user}"
 
 class SubscriptionSerializer(ModelSerializer):
     class Meta:

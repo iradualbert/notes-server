@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_delete, pre_save, post_save
-# Create your models here.
+
 
 class Channel(models.Model):
     name = models.CharField(max_length=100)
@@ -22,23 +22,37 @@ class Channel(models.Model):
     time_open = models.TextField(null=True, blank=True)
     lat = models.FloatField(blank=True, null=True)
     lng = models.FloatField(blank=True, null=True)
-    geom = models.PointField(srid=4326, null=True)
+    geom = models.PointField(srid=4326, null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
 
 
     def __str__(self):
         return self.name
-    
+
+    def to_json(self):
+        return {
+            "name": self.name,
+            "id": self.id,
+            "photo": self.photo,
+            "total_subscribers": self.subscribers.all().count()
+        }
 
     
     def can_answer(self, user):
         if user == self.user:
             return True
         return False
-
+    
+    def is_subscribed(self, user):
+        if user.is_authenticated:
+            if Subscription.objects.filter(user=user, channel=channel).exists():
+                return True
+        return False
+    
+    
     def get_similar_channels(self):
         return []
-
+    
     def get_nearby(self, offset=0, limit=6, m=2500, similar_cat=False):
         if self.geom:
             to_fetch = limit + 1
@@ -101,7 +115,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
+    def to_json(self):
+        return {
+            "name": self.name,
+            "id": self.id,
+            "photo": self.photo
+        }
+
     def similar_products(self):
         pass
 
@@ -146,6 +168,15 @@ class Review(models.Model):
 
     class Meta:
         unique_together = [['product', 'user']]
+
+    def to_json(self):
+        return {
+            "body": self.body,
+            "rate": self.rate,
+            "created_at": self.created_at,
+            "id": self.id,
+            "product": self.product.to_json(),
+        }
     
     def __str__(self):
         return f"{self.user.username} - {self.product.name} - {self.body} "
@@ -161,10 +192,16 @@ class Question(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def to_json(self):
+        return {
+            "title": self.title,
+            "created_at": self.created_at
+        }
 
 
 class Answer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="answers")
     answer = models.TextField()
@@ -173,10 +210,14 @@ class Answer(models.Model):
     def __str__(self):
         return self.answer
 
+    # to do
+    def to_json(self):
+        return {}
+
 
 class Subscription(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
     channel = models.ForeignKey(
         Channel, on_delete=models.CASCADE, related_name="subscribers")
     notify = models.BooleanField(default=False)
@@ -184,6 +225,9 @@ class Subscription(models.Model):
 
     class Meta:
         unique_together = [['user', 'channel']]
+    
+    def to_json(self):
+        return self.channel.to_json()
 
 
 @receiver(pre_delete, sender=Review)

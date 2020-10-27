@@ -9,7 +9,8 @@ from .models import (
     Question, 
     Answer, 
     Review, 
-    Subscription
+    Subscription,
+    Link
 )
 class ChannelSerializer(ModelSerializer):
     # is_subscribed = serializers.SerializerMethodField('get_sub_info')
@@ -84,3 +85,9 @@ class AnswerSerializer(ModelSerializer):
 
     def get_user(self, obj):
         return obj.user.profile.to_json()
+        
+
+class LinkSerializer(ModelSerializer):
+    class Meta:
+        exclude=['channel', 'created_at']
+        model = Link

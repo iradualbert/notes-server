@@ -25,10 +25,8 @@ class Channel(models.Model):
     geom = models.PointField(srid=4326, null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
 
-
     def __str__(self):
         return self.name
-
     def to_json(self):
         return {
             "name": self.name,
@@ -230,6 +228,14 @@ class Subscription(models.Model):
     def to_json(self):
         return self.channel.to_json()
 
+class Link(models.Model):
+    channel = models.ForeignKey(Channel, related_name="links", on_delete=models.CASCADE)
+    url = models.URLField()
+    display_text = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.url
 
 @receiver(pre_delete, sender=Review)
 def _review_delete(sender, instance, **kwargs):

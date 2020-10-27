@@ -76,14 +76,14 @@ class GeoApi:
 
     @staticmethod
     def geocode(address, exactly_one=True, language="en"):
-        locations = geolocator.geocode(
-            address, exactly_one=exactly_one, language=language
-        )
+        locations = geolocator.geocode(address, language="en")
         
         if exactly_one == True:
             return {
                 "lat": locations.latitude,
                 "lng": locations.longitude,
+                "raw": locations.raw,
+                "formatted": locations.address,
             }
         else:
             return locations
@@ -92,4 +92,8 @@ class GeoApi:
     def reverse(lat="", lng="", language="en"):
         location = f"{lat}, {lng}"
         reversed_location = geolocator.reverse(location, language=language)
-        return reversed_location.address
+        # return reversed_location.address
+        return {
+            "address": reversed_location.address,
+            "raw": reversed_location.raw
+        }

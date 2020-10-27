@@ -2,6 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from .models import Profile
+
+# profile serializer
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('birthday', 'country', 'address', 'phone_number')
 
 # user Serializer
 class UserSerializer(serializers.ModelSerializer):

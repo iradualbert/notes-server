@@ -24,5 +24,8 @@ router.register('api/questions', QuestionView)
 router.register('api/answers', AnswerView)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('api/links/<channel_id>/', ChannelView.add_link),
+    path('api/links/<link_id>/delete', ChannelView.destroy_link),
+    path('api/channels/<channel_id>/about', ChannelView.about),
 ]

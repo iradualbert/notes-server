@@ -8,7 +8,8 @@ from .models import (
     Question,
     Answer,
     Review,
-    Subscription
+    Subscription,
+    Link
 )
 
 
@@ -21,3 +22,4 @@ admin.site.register(Listing)
 admin.site.register(Review)
 admin.site.register(Question)
 admin.site.register(Answer)
+admin.site.register(Link)

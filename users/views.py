@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view
 from knox.models import AuthToken
 from .tokens import account_activation_token
 from .models import Profile, VerificationCode
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer, ProfileSerializer
 from .utils import send_confirmation_email, get_user_fb_google, GeoApi
 
 @api_view(['POST', 'DELETE', 'PUT'])
@@ -32,8 +32,16 @@ def update_photo(request):
 
 @api_view(['GET'])
 def get_location(request):
-    data = GeoApi.ip_address(request)
-    return JsonResponse(data)
+    address = request.GET.get('address')
+    ip_data = GeoApi.ip_address(request)
+
+    # geocoded_data = GeoApi.geocode(address)
+    # reversed_data = GeoApi.reverse(lat=40, lng=30, language="tr")
+    return JsonResponse({
+        "ip": ip_data,
+        # "geo": geocoded_data,
+        # "reversed": reversed_data
+    })
 
 @api_view(['POST'])
 def register(request):
@@ -42,7 +50,13 @@ def register(request):
     serializer = RegisterSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()
-        Profile.objects.create(user=user)
+        profile = Profile.objects.create(user=user)
+        try:
+            auto_country = GeoApi.ip_address(request)['country']
+            profile.auto_detected_country = auto_country
+            profile.save()
+        except Exception as e:
+            print(e)
         send_confirmation_email(user, request)
         _, token = AuthToken.objects.create(user)
         return JsonResponse({
@@ -51,7 +65,18 @@ def register(request):
             "is_active": user.profile.confirmed
         })
         
-   
+@api_view(['POST'])
+def register_profile(request):
+    user = request.user
+    profile = user.profile
+    data = json.loads(request.body)
+    data['user'] = user
+    serializer = ProfileSerializer(data=data)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+        return Response({'status': 'ok'}, status=201)
+    else:
+        return Response(serializer.errors, status=401)
 
 
 # activate through email

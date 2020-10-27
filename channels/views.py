@@ -2,10 +2,10 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import permissions
+from rest_framework.decorators import api_view
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import permissions
 from .serializers import (
     ChannelSerializer, 
     BranchSerializer,
@@ -16,6 +16,7 @@ from .serializers import (
     QuestionSerializer,
     AnswerSerializer,
     SubscriptionSerializer,
+    LinkSerializer
 )
 from .models import (
     Channel, 
@@ -26,7 +27,8 @@ from .models import (
     Listing, 
     Review,
     Question,
-    Answer
+    Answer,
+    Link
 )
 from .utils import get_ip_address
 
@@ -82,6 +84,56 @@ class ChannelView(ModelViewSet):
             profile.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+    
+    @staticmethod
+    @api_view(['GET'])
+    def about(request, channel_id):
+        channel = get_object_or_404(Channel, pk=channel_id)
+        links = channel.links
+        link_data = LinkSerializer(links, many=True).data
+        return Response({
+            "links": link_data
+        }, status=200)
+
+    @staticmethod
+    @api_view(['POST', 'UPDATE'])
+    def add_link(request, channel_id):
+        user = request.user
+        channel = get_object_or_404(Channel, pk=channel_id)
+        if not user.is_authenticated or user != channel.user:
+            return Response({'detail': 'not authenticated'}, status=401)
+        data = request.data
+        id = data.get('id')
+        if id is not None:
+            link = get_object_or_404(Link, pk=id)
+            if link.channel == channel:
+                serializer = LinkSerializer(link, data)
+                if not serializer.is_valid(raise_exception=True):
+                    return Response(serializer.errors, status=400)
+                serializer.save()
+                return Response({'status': 'ok'}, 201)
+            else:
+                return Resonse({'detail': 'forbidden'}, status=403)
+        serializer = LinkSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(channel=channel)
+            return Response({'status': 'ok'}, status=201)
+        else:
+            return Response(serializer.errors, status=400)
+    
+    @staticmethod
+    @api_view(['DELETE'])
+    def destroy_link(request, link_id):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'not authenticated'}, status=401)
+        link = get_object_or_404(Link, pk=link_id)
+        if user != link.channel.user:
+            return Response({'detail': 'forbiden'}, status=403)
+        else:
+            link.delete()
+            return Response({'status': 'ok'}, status=203)
+
 
     def update(self, request, *args, **kwargs):
         pk = kwargs.get('pk')

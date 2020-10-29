@@ -26,6 +26,7 @@ urlpatterns = [
      path('api/user/questions', UserInfo.questions, name="user_questions"),
      path('api/user/subscriptions', UserInfo.subscriptions, name="user_subscriptions"),
      path('api/user/saved', UserInfo.saved, name="user_subscriptions"),
+     path('api/user/library', UserInfo.library, name="user_library"),
      
     # views
     path('api/auth', include('knox.urls')),

@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Profile
 
@@ -67,14 +68,30 @@ def get(request, requested=""):
     elif requested == "notifications":
         fetched = user.notifications.all()[offset:offset+to_fetch]
     else:
-        raise ValueError("this only allows reviews, questions, saved, subscriptions")
+        raise ValueError("you can only request for reviews, questions, saved, subscriptions")
     more_available = len(fetched) == limit
     data = [x.to_json() for x in fetched[0:limit]]
     return Response({
         requested: data,
         "more_available": more_available
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated,])
+def user_library(request):
+    user = request.user
+    saved = user.saved.all().count()
+    subscriptions = user.subscriptions.all().count()
+    reviews = user.reviews.all().count()
+    questions = user.asked.all().count()
     
+    return Response({
+        "saved": saved,
+        "subscriptions": subscriptions,
+        "reviews": reviews,
+        "questions": questions,
+    }, status=200)
+     
 
 @api_view(['GET'])
 def get_saved(request):
@@ -84,6 +101,9 @@ class UserInfo:
     @staticmethod
     def info(request):
         return get_user_info(request)
+    @staticmethod
+    def library(request):
+        return user_library(request)
     @staticmethod
     def notifications(request):
         return get(request, requested="notifications")
@@ -102,3 +122,5 @@ class UserInfo:
     @staticmethod
     def subscriptions(request):
         return get(request, requested="subscriptions")
+
+    

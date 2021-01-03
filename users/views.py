@@ -37,11 +37,7 @@ def get_location(request):
 
     # geocoded_data = GeoApi.geocode(address)
     # reversed_data = GeoApi.reverse(lat=40, lng=30, language="tr")
-    return JsonResponse({
-        "ip": ip_data,
-        # "geo": geocoded_data,
-        # "reversed": reversed_data
-    })
+    return JsonResponse(ip_data)
 
 @api_view(['POST'])
 def register(request):
